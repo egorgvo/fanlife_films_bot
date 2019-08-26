@@ -67,6 +67,7 @@ def get_new_films_info(session, new_films):
                 date = seance_info.pop('date')
                 three_d = seance_info.pop('three_d')
                 three_d = '3D' if three_d else '2D'
-                film_info['theaters'][theater.name][three_d][date] = seance_info
+                film_info['theaters'][theater.name][three_d].setdefault(date, [])
+                film_info['theaters'][theater.name][three_d][date].append(seance_info)
         films_info.append(film_info)
     return films_info
