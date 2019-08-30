@@ -91,6 +91,9 @@ if __name__ == '__main__':
             if i == 0:
                 params['caption'] = actors
             media.append(InputMediaPhoto(**params))
-        bot.send_media_group(CHANNEL_ID, media=media)
+        if media:
+            bot.send_media_group(CHANNEL_ID, media=media)
+        else:
+            bot.send_message(CHANNEL_ID, text=actors)
         bot.send_message(CHANNEL_ID, text=theaters_seances, parse_mode=ParseMode.MARKDOWN)
     logger.info("All messages sent.")
