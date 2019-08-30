@@ -14,10 +14,12 @@ def save_films_return_new(session, films_info):
 
     for film_info in films_info:
         theaters = film_info.pop('theaters')
-        film = get_or_default(session, Film,
-                       name=film_info['name'],
-                       original_name=film_info['original_name'],
-                       director=film_info['director'])
+        params = {'name': film_info['name']}
+        if film_info.get('original_name'):
+            params['original_name'] = film_info['original_name']
+        if film_info.get('director'):
+            params['director'] = film_info['director']
+        film = get_or_default(session, Film, **params)
 
         if True or not film:
             film_info['images'] = dumps(film_info['images'])
