@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
+import logging
 import os
 from os.path import dirname, abspath
 
@@ -13,6 +14,7 @@ from app.models import Base
 from app.parser import get_films_info
 from app.saver import save_films_return_new, get_new_films_info
 
+logger = logging.getLogger(__name__)
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 CHANNEL_ID = os.getenv('CHANNEL_ID')
@@ -54,21 +56,33 @@ def form_messages(film_info):
 
 
 if __name__ == '__main__':
+    # Настройки логирования
+    logging.basicConfig(
+        format='[%(asctime)s %(levelname)s] %(message)s',
+        datefmt="%Y-%m-%d %H:%M:%S",
+        level=logging.INFO)
+
     bot = Bot(BOT_TOKEN)
 
+    logger.info("Creating database connection.")
     db_file = f'{BASE_DIRECTORY}/database.sqlite'
     engine = create_engine(f'sqlite:///{db_file}', echo=False)
     Base.metadata.create_all(engine)
     session = scoped_session(sessionmaker(bind=engine))
 
+    logger.info("Getting films info.")
     films_info = get_films_info()
 
+    logger.info("Saving films and getting new films.")
     new_films = save_films_return_new(session, films_info)
+    logger.info("Getting new films info.")
     films_info = get_new_films_info(session, new_films)
 
     for film_info in films_info:
+        logger.info("Forming {} film messages texts.".format(film_info['name']))
         info, description, actors, theaters_seances = form_messages(film_info)
 
+        logger.info("Sending film messages.")
         bot.send_photo(CHANNEL_ID, photo=film_info['poster'], caption=info, parse_mode=ParseMode.MARKDOWN)
         bot.send_message(CHANNEL_ID, text=description, parse_mode=ParseMode.MARKDOWN)
         media = []
@@ -79,3 +93,4 @@ if __name__ == '__main__':
             media.append(InputMediaPhoto(**params))
         bot.send_media_group(CHANNEL_ID, media=media)
         bot.send_message(CHANNEL_ID, text=theaters_seances, parse_mode=ParseMode.MARKDOWN)
+    logger.info("All messages sent.")
