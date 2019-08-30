@@ -72,6 +72,7 @@ def get_film_info(html):
         'Название на языке оригинала:': 'original_name',
         'Режиссёр:': 'director',
         'Актёры:': 'actors',
+        'Оценка IMDb:': 'IMDB',
     }
     for meta in metas:
         name = meta.find('div', attrs={"class": 'b-meta__name'})
