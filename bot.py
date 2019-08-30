@@ -7,6 +7,7 @@ from os.path import dirname, abspath
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from telegram import ParseMode, Bot, InputMediaPhoto
 
 from app.models import Base
 from app.parser import get_films_info
@@ -14,6 +15,7 @@ from app.saver import save_films_return_new, get_new_films_info
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+CHANNEL_ID = os.getenv('CHANNEL_ID')
 BASE_DIRECTORY = dirname(abspath(__file__))
 
 
@@ -50,6 +52,8 @@ def form_messages(film_info):
 
 
 if __name__ == '__main__':
+    bot = Bot(BOT_TOKEN)
+
     db_file = f'{BASE_DIRECTORY}/database.sqlite'
     engine = create_engine(f'sqlite:///{db_file}', echo=False)
     Base.metadata.create_all(engine)
@@ -61,6 +65,15 @@ if __name__ == '__main__':
     films_info = get_new_films_info(session, new_films)
 
     for film_info in films_info:
-        messages = form_messages(film_info)
+        info, description, actors, theaters_seances = form_messages(film_info)
 
-    # TODO send to telegram chat
+        bot.send_photo(CHANNEL_ID, photo=film_info['poster'], caption=info, parse_mode=ParseMode.MARKDOWN)
+        bot.send_message(CHANNEL_ID, text=description, parse_mode=ParseMode.MARKDOWN)
+        media = []
+        for i, image in enumerate(film_info['images']):
+            params = {'media': image}
+            if i == 0:
+                params['caption'] = actors
+            media.append(InputMediaPhoto(**params))
+        bot.send_media_group(CHANNEL_ID, media=media)
+        bot.send_message(CHANNEL_ID, text=theaters_seances, parse_mode=ParseMode.MARKDOWN)
