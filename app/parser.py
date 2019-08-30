@@ -16,8 +16,10 @@ BASE_URL = 'https://fanlife.ru'
 def get_films_info():
     logger.info("Getting main page.")
     main_url = 'https://fanlife.ru/afisha/cat/1'
-    response = get_page_html(main_url)
-    links = get_films_links(response.text)
+    html = get_page_html(main_url)
+    links = get_films_links(html)
+    links = list(set(links))
+    sleep(5)
     films_info = []
     for link in links:
         logger.info("Getting film info from {}.".format(link))
