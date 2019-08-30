@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import requests
+from requests.exceptions import ConnectionError
 from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -24,9 +25,13 @@ def get_films_info():
 
 
 def get_page_html(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.content.decode(response.encoding)
+    try:
+        response = requests.get(url)
+    except ConnectionError:
+        response = None
+
+    if response and response.status_code == 200:
+        return response.text
 
     options = Options()
     options.add_argument('--headless')
