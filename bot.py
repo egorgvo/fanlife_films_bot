@@ -26,7 +26,9 @@ def form_messages(film_info):
            "{countries}\n\n" \
            "{genres}\n" \
            "{box_office_from}".format(**film_info)
-    description = "{description}\n\n[Трейлер]({video})".format(**film_info)
+    if film_info.get('video'):
+        video_text = "\n\n[Трейлер]({video})".format(**film_info)
+    description = "{description}{video_text}"
     actors = "Актёры:\n{actors}".format(**film_info)
     theaters_seances = []
     for theater, three_d in film_info['theaters'].items():
