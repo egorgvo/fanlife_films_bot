@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
+import logging
 import requests
 from requests.exceptions import ConnectionError
 from time import sleep
@@ -8,15 +9,18 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
+logger = logging.getLogger(__name__)
 BASE_URL = 'https://fanlife.ru'
 
 
 def get_films_info():
+    logger.info("Getting main page.")
     main_url = 'https://fanlife.ru/afisha/cat/1'
     response = get_page_html(main_url)
     links = get_films_links(response.text)
     films_info = []
     for link in links:
+        logger.info("Getting film info from {}.".format(link))
         html = get_page_html(link)
         film_info = get_film_info(html)
         films_info.append(film_info)
