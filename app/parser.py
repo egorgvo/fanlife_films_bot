@@ -99,9 +99,13 @@ def get_film_info(html):
     info['description'] = soup.find('div', attrs={"class": 'b-review__text'}).text
     info['description'] = inner_strip(info['description'])
 
-    info['video'] = soup.find('div', attrs={"class": 'b-review__video'}).find('iframe').attrs.get('src')
-    info['images'] = list(soup.find('div', attrs={"class": 'b-review__gallery'}).findAll('a'))
-    info['images'] = [''.join((BASE_URL, image.attrs.get('href'))) for image in info['images']]
+    video_parent = soup.find('div', attrs={"class": 'b-review__video'}).find('iframe')
+    info['video'] = video_parent.attrs.get('src') if video_parent else ''
+    info['images'] = []
+    images_parent = soup.find('div', attrs={"class": 'b-review__gallery'})
+    if images_parent:
+        info['images'] = list(images_parent.findAll('a'))
+        info['images'] = [''.join((BASE_URL, image.attrs.get('href'))) for image in info['images']]
 
     parent = soup.find('div', attrs={"class": 'b-seances'})
     movie_theaters = parent.findAll('div', attrs={"class": 'b-seances__film-content'})
