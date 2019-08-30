@@ -18,7 +18,7 @@ BASE_DIRECTORY = dirname(abspath(__file__))
 
 
 def form_messages(film_info):
-    info = "{name}\n\n" \
+    info = "*{name}*\n\n" \
            "{original_name}\n" \
            "Режиссёр: {director}\n" \
            "{countries}\n\n" \
@@ -35,16 +35,16 @@ def form_messages(film_info):
                 seances_times = []
                 for seance in seances:
                     times = ' '.join(seance['times']).ljust(30)
-                    cost = ' **{}**'.format(seance['cost']) if seance.get('cost') else ''
+                    cost = ' *{}*'.format(seance['cost']) if seance.get('cost') else ''
                     seances_times.append("{}{}".format(times, cost))
                 if not seances_times:
                     continue
                 seances_times = '\n'.join(seances_times)
-                days_seances.append("{}\n{}".format(day, seances_times))
+                days_seances.append("*{}*\n{}".format(day, seances_times))
             if not days_seances:
                 continue
             days_seances = '\n\n'.join(days_seances)
-            theaters_seances.append("{} {}\n{}".format(theater, _three_d, days_seances))
+            theaters_seances.append("*{} {}*\n{}".format(theater, _three_d, days_seances))
     theaters_seances = '\n\n'.join(theaters_seances)
     return info, description, actors, theaters_seances
 
