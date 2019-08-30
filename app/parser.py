@@ -122,8 +122,9 @@ def get_film_info(html):
             costs = []
             for seance_cost in seance_costs:
                 seance_times = [seance_time.text for seance_time in seance_cost.findAll('span')]
-                seance_cost = seance_cost.find('small').text.strip()
-                costs.append({'times': seance_times, 'cost': seance_cost})
+                cost = seance_cost.find('small')
+                cost = cost.text.strip() if cost else ''
+                costs.append({'times': seance_times, 'cost': cost})
             theater_seances.append({'date': seance_date, 'costs': costs})
         info['theaters'].append({'theater': theater, 'seances': theater_seances, '3D': three_d})
 
