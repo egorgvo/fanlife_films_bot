@@ -16,6 +16,7 @@ class Film(Base):
     countries = Column(String())
     duration = Column(String())
     box_office_from = Column(String())
+    IMDB = Column(String())
     description = Column(String())
     video = Column(String())
     images = Column(String())
