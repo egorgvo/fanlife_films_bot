@@ -84,7 +84,8 @@ def get_film_info(html):
     info['name'] = parent.find('h1', attrs={"class": 'b-h1'}).text
     # Image
     parent = soup.find('div', attrs={"class": 'b-review__cover'})
-    info['poster'] = ''.join((BASE_URL, parent.find('a').attrs.get('href')))
+    a_href = parent.find('a')
+    info['poster'] = ''.join((BASE_URL, a_href.attrs.get('href'))) if a_href else ''
     parent = soup.find('div', attrs={"class": 'b-review__meta'})
     metas = parent.findAll('div', attrs={"class": 'b-meta'})
     names_map = {
