@@ -7,6 +7,7 @@ class Film(Base):
     __tablename__ = 'film'
 
     id = Column(Integer, primary_key=True)
+    url = Column(String())
     name = Column(String(), nullable=False)
     original_name = Column(String())
     poster = Column(String())
