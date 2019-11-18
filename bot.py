@@ -3,6 +3,7 @@
 
 import logging
 import os
+from time import sleep
 from os.path import dirname, abspath
 
 from dotenv import load_dotenv
