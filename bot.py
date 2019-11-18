@@ -80,7 +80,14 @@ if __name__ == '__main__':
 
     for film_info in films_info:
         logger.info("Forming {} film messages texts.".format(film_info['name']))
-        bot.send_message(CHANNEL_ID, text=film_info['url'], parse_mode=ParseMode.MARKDOWN)
+        for i in range(2):
+            try:
+                bot.send_message(CHANNEL_ID, text=film_info['url'], parse_mode=ParseMode.MARKDOWN)
+            except Exception:
+                sleep(30)
+                continue
+            break
+        sleep(10)
         # info, description, actors, theaters_seances = form_messages(film_info)
         #
         # logger.info("Sending film messages.")
