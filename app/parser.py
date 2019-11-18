@@ -56,7 +56,11 @@ def get_films_links(html):
     for day in days:
         films = day.findAll('div', attrs={'class': 'b-seances__film'})
         for film in films:
-            link = film.find('div', attrs={'class': 'b-seances__film-name'}).find('a')['href']
+            link = film.find('div', attrs={'class': 'b-seances__film-name'}).find('a')
+            # TODO Get film without going to page
+            if not link:
+                continue
+            link = link['href']
             if link.startswith('/'):
                 continue
             links.append(link)
