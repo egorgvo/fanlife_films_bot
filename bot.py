@@ -80,20 +80,21 @@ if __name__ == '__main__':
 
     for film_info in films_info:
         logger.info("Forming {} film messages texts.".format(film_info['name']))
-        info, description, actors, theaters_seances = form_messages(film_info)
-
-        logger.info("Sending film messages.")
-        bot.send_photo(CHANNEL_ID, photo=film_info['poster'], caption=info, parse_mode=ParseMode.MARKDOWN)
-        bot.send_message(CHANNEL_ID, text=description, parse_mode=ParseMode.MARKDOWN)
-        media = []
-        for i, image in enumerate(film_info['images']):
-            params = {'media': image}
-            if i == 0:
-                params['caption'] = actors
-            media.append(InputMediaPhoto(**params))
-        if media:
-            bot.send_media_group(CHANNEL_ID, media=media)
-        else:
-            bot.send_message(CHANNEL_ID, text=actors)
-        bot.send_message(CHANNEL_ID, text=theaters_seances, parse_mode=ParseMode.MARKDOWN)
+        bot.send_message(CHANNEL_ID, text=film_info['url'], parse_mode=ParseMode.MARKDOWN)
+        # info, description, actors, theaters_seances = form_messages(film_info)
+        #
+        # logger.info("Sending film messages.")
+        # bot.send_photo(CHANNEL_ID, photo=film_info['poster'], caption=info, parse_mode=ParseMode.MARKDOWN)
+        # bot.send_message(CHANNEL_ID, text=description, parse_mode=ParseMode.MARKDOWN)
+        # media = []
+        # for i, image in enumerate(film_info['images']):
+        #     params = {'media': image}
+        #     if i == 0:
+        #         params['caption'] = actors
+        #     media.append(InputMediaPhoto(**params))
+        # if media:
+        #     bot.send_media_group(CHANNEL_ID, media=media)
+        # else:
+        #     bot.send_message(CHANNEL_ID, text=actors)
+        # bot.send_message(CHANNEL_ID, text=theaters_seances, parse_mode=ParseMode.MARKDOWN)
     logger.info("All messages sent.")
