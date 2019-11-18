@@ -25,6 +25,7 @@ def get_films_info():
         logger.info("Getting film info from {}.".format(link))
         html = get_page_html(link)
         film_info = get_film_info(html)
+        film_info['url'] = link
         films_info.append(film_info)
         sleep(5)
     return films_info
