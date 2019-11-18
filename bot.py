@@ -65,8 +65,8 @@ if __name__ == '__main__':
     bot = Bot(BOT_TOKEN)
 
     logger.info("Creating database connection.")
-    db_file = f'{BASE_DIRECTORY}/database.sqlite'
-    engine = create_engine(f'sqlite:///{db_file}', echo=False)
+    db_file = '{}/database.sqlite'.format(BASE_DIRECTORY)
+    engine = create_engine('sqlite:///{}'.format(db_file), echo=False)
     Base.metadata.create_all(engine)
     session = scoped_session(sessionmaker(bind=engine))
 
