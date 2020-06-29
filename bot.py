@@ -3,9 +3,11 @@
 
 import logging
 import os
-from time import sleep
 from os.path import dirname, abspath
+from tempfile import NamedTemporaryFile
+from time import sleep
 
+import requests
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -55,6 +57,19 @@ def form_messages(film_info):
     return info, description, actors, theaters_seances
 
 
+def get_temporary_file(content):
+    temp_file = NamedTemporaryFile(delete=False)
+    temp_file.write(content)
+    opened_file = open(temp_file.name, 'rb')
+    return temp_file, opened_file
+
+
+def close_files(temp_file, opened_file):
+    opened_file.close()
+    temp_file.close()
+    os.unlink(temp_file.name)
+
+
 if __name__ == '__main__':
     # Настройки логирования
     logging.basicConfig(
@@ -80,28 +95,48 @@ if __name__ == '__main__':
 
     for film_info in films_info:
         logger.info("Forming {} film messages texts.".format(film_info['name']))
-        for i in range(2):
-            try:
-                bot.send_message(CHANNEL_ID, text=film_info['url'], parse_mode=ParseMode.MARKDOWN)
-            except Exception:
-                sleep(30)
-                continue
-            break
-        sleep(10)
-        # info, description, actors, theaters_seances = form_messages(film_info)
-        #
-        # logger.info("Sending film messages.")
-        # bot.send_photo(CHANNEL_ID, photo=film_info['poster'], caption=info, parse_mode=ParseMode.MARKDOWN)
-        # bot.send_message(CHANNEL_ID, text=description, parse_mode=ParseMode.MARKDOWN)
-        # media = []
-        # for i, image in enumerate(film_info['images']):
-        #     params = {'media': image}
-        #     if i == 0:
-        #         params['caption'] = actors
-        #     media.append(InputMediaPhoto(**params))
-        # if media:
-        #     bot.send_media_group(CHANNEL_ID, media=media)
-        # else:
-        #     bot.send_message(CHANNEL_ID, text=actors)
-        # bot.send_message(CHANNEL_ID, text=theaters_seances, parse_mode=ParseMode.MARKDOWN)
+        info, description, actors, theaters_seances = form_messages(film_info)
+
+        logger.info("Sending film messages.")
+        logger.info("Sending poster.")
+        pos = film_info['poster'].find('?')
+        if not pos == -1:
+            film_info['poster'] = film_info['poster'][:pos]
+        try:
+            bot.send_photo(CHANNEL_ID, photo=film_info['poster'], caption=info, parse_mode=ParseMode.MARKDOWN,
+                           timeout=120)
+        except Exception as exc:
+            logger.error(f"Error while sending film poster: {exc}")
+        logger.info("Sending description and video.")
+        bot.send_message(CHANNEL_ID, text=description, parse_mode=ParseMode.MARKDOWN, timeout=120)
+        logger.info("Sending photos and actors.")
+        media = []
+        temporaries = []
+        for i, image in enumerate(film_info['images']):
+            sleep(1)
+            file_content = requests.get(image)
+            temp_file, media_file = get_temporary_file(file_content.content)
+            temporaries.append((temp_file, media_file))
+            params = {'media': media_file}
+            if i == 0:
+                params['caption'] = actors
+            media.append(InputMediaPhoto(**params))
+        if media:
+            bot.send_media_group(CHANNEL_ID, media=media, timeout=120)
+            for temp_file, media_file in temporaries:
+                close_files(temp_file, media_file)
+        else:
+            bot.send_message(CHANNEL_ID, text=actors, timeout=120)
+        logger.info("Sending seances.")
+        try:
+            bot.send_message(CHANNEL_ID, text=theaters_seances, parse_mode=ParseMode.MARKDOWN, timeout=120)
+        except Exception as exc:
+            sleep(2)
+        logger.info("Sending link.")
+        try:
+            bot.send_message(CHANNEL_ID, text=film_info['url'], parse_mode=ParseMode.MARKDOWN, timeout=120)
+        except Exception:
+            sleep(3)
+            continue
+        # break
     logger.info("All messages sent.")
