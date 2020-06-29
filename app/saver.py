@@ -20,8 +20,7 @@ def save_films_return_new(session, films_info):
         if film_info.get('director'):
             params['director'] = film_info['director']
         film = get_or_default(session, Film, **params)
-
-        if True or not film:
+        if not film:
             film_info['images'] = dumps(film_info['images'])
             film = create(session, Film, **film_info)
             new_films.append(film)
